@@ -7,7 +7,7 @@
 // @grant        none
 // @run-at       document-idle
 // @noframes
-// @version      1.0.0
+// @version      1.1.0
 // @updateURL    https://github.com/rafaelbiasi/userscripts/raw/refs/heads/main/youtube-watch-later-reorder.meta.js
 // @downloadURL  https://github.com/rafaelbiasi/userscripts/raw/refs/heads/main/youtube-watch-later-reorder.user.js
 // @icon         https://www.google.com/s2/favicons?domain=youtube.com
@@ -21,8 +21,10 @@
     const DEBUG_ENABLED = true;
 
     const SELECTOR_TOP_BUTTONS = '.ytp-chrome-top-buttons';
-    const SELECTOR_WATCH_LATER_BTN = '.ytp-chrome-top-buttons > .ytp-watch-later-button.ytp-button';
+    // Use :scope para buscar apenas filhos diretos dentro da lista já localizada
+    const SELECTOR_WATCH_LATER_BTN = ':scope > .ytp-watch-later-button.ytp-button';
 
+    const WL_MARK_ATTR = 'data-ytwlr-moved'; // armazena o ID do vídeo para o qual já movemos
     const PROCESS_DEBOUNCE_MS = 200;
     const IDLE_STOP_MS = 4000;
 
@@ -30,6 +32,9 @@
     let debounceTimer = null;
     let idleTimer = null;
     let processedSinceLastIdle = false;
+
+    // Guarda os IDs de vídeo já processados nesta sessão
+    const movedForVideo = new Set();
 
     init();
 
@@ -121,26 +126,55 @@
         }, IDLE_STOP_MS);
     }
 
+    function getCurrentVideoId() {
+        try {
+            const url = new URL(location.href);
+            return url.searchParams.get('v') || null;
+        } catch {
+            return null;
+        }
+    }
+
     function processSafe() {
         try {
-            reorderWatchLater();
+            const vid = getCurrentVideoId();
+            if (!vid) return;
+            reorderWatchLater(vid);
         } catch (e) {
             log('Erro ao reposicionar Watch Later:', e);
         }
     }
 
-    function reorderWatchLater() {
+    function reorderWatchLater(videoId) {
+        // Já movido para este vídeo? Evita retrabalho em loops de mutação.
+        if (movedForVideo.has(videoId)) {
+            return;
+        }
+
         const list = document.querySelector(SELECTOR_TOP_BUTTONS);
         if (!list) return;
 
         const wl = list.querySelector(SELECTOR_WATCH_LATER_BTN);
         if (!wl) return;
 
-        if (wl !== list.lastElementChild) {
-            list.removeChild(wl);
-            list.appendChild(wl);
-            debug('Watch Later movido para o final');
+        const markedId = wl.getAttribute(WL_MARK_ATTR);
+        if (markedId === videoId) {
+            // Botão já foi marcado/movido para este vídeo
+            movedForVideo.add(videoId);
+            return;
         }
+
+        // Move apenas uma vez por vídeo; se já estiver no final, só marca.
+        if (wl !== list.lastElementChild) {
+            list.appendChild(wl); // append já remove do local anterior
+            debug('Watch Later movido para o final', { videoId });
+        } else {
+            debug('Watch Later já está no final', { videoId });
+        }
+
+        // Marca o botão com o ID do vídeo atual e registra como processado
+        wl.setAttribute(WL_MARK_ATTR, videoId);
+        movedForVideo.add(videoId);
     }
 
     function log(...args) {

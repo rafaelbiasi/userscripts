@@ -7,5 +7,5 @@
 // @grant        none
 // @run-at       document-idle
 // @noframes
-// @version      1.0.0
+// @version      1.1.0
 // ==/UserScript==
