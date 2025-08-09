@@ -1,14 +1,16 @@
 // ==UserScript==
 // @name         YouTube Watch Later Button Swap
-// @namespace    https://rafaelbiasi.dev/userscripts
-// @version      1.0.0
+// @namespace    https://github.com/rafaelbiasi/userscripts
 // @description  Move o botão "Assistir mais tarde" (Watch Later) para o início do grupo de botões do player, de forma idempotente e resiliente ao SPA do YouTube.
 // @author       Rafael Biasi
 // @match        *://www.youtube.com/*
-// @icon         https://www.google.com/s2/favicons?domain=youtube.com
 // @grant        none
 // @run-at       document-start
 // @noframes
+// @version      1.0.0
+// @updateURL    https://github.com/rafaelbiasi/userscripts/raw/refs/heads/main/youtube-watch-later-button-swap.meta.js
+// @downloadURL  https://github.com/rafaelbiasi/userscripts/raw/refs/heads/main/youtube-watch-later-button-swap.user.js
+// @icon         https://www.google.com/s2/favicons?domain=youtube.com
 // ==/UserScript==
 
 (function () {

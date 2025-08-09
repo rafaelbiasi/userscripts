@@ -1,14 +1,16 @@
 // ==UserScript==
 // @name         YouTube Channel Links → Videos Tab
-// @namespace    https://rafaelbiasi.dev/userscripts
-// @version      1.0.0
+// @namespace    https://github.com/rafaelbiasi/userscripts
 // @description  Converte links de canais no YouTube para apontarem diretamente à aba "Vídeos", de forma idempotente e resiliente a mudanças de DOM do SPA.
 // @author       Rafael Biasi
 // @match        *://www.youtube.com/*
-// @icon         https://www.google.com/s2/favicons?domain=youtube.com
 // @grant        none
 // @run-at       document-idle
 // @noframes
+// @version      1.0.0
+// @updateURL    https://github.com/rafaelbiasi/userscripts/raw/refs/heads/main/youtube-channel-goto-videos-page.meta.js
+// @downloadURL  https://github.com/rafaelbiasi/userscripts/raw/refs/heads/main/youtube-channel-goto-videos-page.user.js
+// @icon         https://www.google.com/s2/favicons?domain=youtube.com
 // ==/UserScript==
 
 (function () {
