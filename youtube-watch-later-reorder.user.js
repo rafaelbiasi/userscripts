@@ -21,10 +21,9 @@
     const DEBUG_ENABLED = true;
 
     const SELECTOR_TOP_BUTTONS = '.ytp-chrome-top-buttons';
-    // Use :scope para buscar apenas filhos diretos dentro da lista já localizada
     const SELECTOR_WATCH_LATER_BTN = ':scope > .ytp-watch-later-button.ytp-button';
 
-    const WL_MARK_ATTR = 'data-ytwlr-moved'; // armazena o ID do vídeo para o qual já movemos
+    const WL_MARK_ATTR = 'data-ytwlr-moved';
     const PROCESS_DEBOUNCE_MS = 200;
     const IDLE_STOP_MS = 4000;
 
@@ -33,7 +32,6 @@
     let idleTimer = null;
     let processedSinceLastIdle = false;
 
-    // Guarda os IDs de vídeo já processados nesta sessão
     const movedForVideo = new Set();
 
     init();
@@ -146,7 +144,6 @@
     }
 
     function reorderWatchLater(videoId) {
-        // Já movido para este vídeo? Evita retrabalho em loops de mutação.
         if (movedForVideo.has(videoId)) {
             return;
         }
@@ -159,20 +156,17 @@
 
         const markedId = wl.getAttribute(WL_MARK_ATTR);
         if (markedId === videoId) {
-            // Botão já foi marcado/movido para este vídeo
             movedForVideo.add(videoId);
             return;
         }
 
-        // Move apenas uma vez por vídeo; se já estiver no final, só marca.
         if (wl !== list.lastElementChild) {
-            list.appendChild(wl); // append já remove do local anterior
+            list.appendChild(wl);
             debug('Watch Later movido para o final', { videoId });
         } else {
             debug('Watch Later já está no final', { videoId });
         }
 
-        // Marca o botão com o ID do vídeo atual e registra como processado
         wl.setAttribute(WL_MARK_ATTR, videoId);
         movedForVideo.add(videoId);
     }
