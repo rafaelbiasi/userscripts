@@ -7,7 +7,7 @@
 // @grant        none
 // @run-at       document-start
 // @noframes
-// @version      1.0.0
+// @version      1.0.1
 // @updateURL    https://github.com/rafaelbiasi/userscripts/raw/refs/heads/main/youtube-pause-at-start.meta.js
 // @downloadURL  https://github.com/rafaelbiasi/userscripts/raw/refs/heads/main/youtube-pause-at-start.user.js
 // @icon         https://www.google.com/s2/favicons?domain=youtube.com
@@ -34,22 +34,12 @@
     init();
 
     function init() {
-        installGlobalErrorLogging();
         if (isPlaylistPage()) {
             debug('Página de playlist detectada; script não se aplica.');
             return;
         }
         whenReadyForVideo().catch((e) => log('Falha no bootstrap:', e));
         installSpaGuards();
-    }
-
-    function installGlobalErrorLogging() {
-        window.addEventListener('error', (event) => {
-            console.error(LOG_PREFIX, 'Erro não tratado:', event.error || event.message || event);
-        }, { passive: true });
-        window.addEventListener('unhandledrejection', (event) => {
-            console.error(LOG_PREFIX, 'Promise rejeitada:', event.reason);
-        }, { passive: true });
     }
 
     function installSpaGuards() {
@@ -65,7 +55,7 @@
             window.addEventListener(evt, () => {
                 debug('SPA event:', evt, location.href);
                 rearm();
-            }, { passive: true });
+            }, {passive: true});
         });
 
         const origPush = history.pushState;
@@ -80,7 +70,7 @@
             queueMicrotask(rearm);
             return ret;
         };
-        window.addEventListener('popstate', () => queueMicrotask(rearm), { passive: true });
+        window.addEventListener('popstate', () => queueMicrotask(rearm), {passive: true});
     }
 
     async function whenReadyForVideo() {
@@ -100,12 +90,18 @@
     function prepareAndPause(videoEl) {
         debug('Preparando vídeo para pausa imediata', videoEl);
 
-        try { videoEl.preload = 'auto'; } catch {}
-        try { videoEl.autoplay = false; } catch {}
+        try {
+            videoEl.preload = 'auto';
+        } catch {
+        }
+        try {
+            videoEl.autoplay = false;
+        } catch {
+        }
         const oldMuted = temporarilyMute(videoEl, true);
 
         playingHandler = () => onPlaying(videoEl, oldMuted);
-        videoEl.addEventListener(VIDEO_EVENT, playingHandler, { once: false, passive: true });
+        videoEl.addEventListener(VIDEO_EVENT, playingHandler, {once: false, passive: true});
 
         const startAt = performance.now();
         clearInterval(tryPauseTimer);
@@ -163,7 +159,8 @@
         const old = !!videoEl.muted;
         try {
             videoEl.muted = !!mute;
-        } catch {}
+        } catch {
+        }
         return old;
     }
 
